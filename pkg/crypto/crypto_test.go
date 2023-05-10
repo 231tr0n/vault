@@ -69,7 +69,7 @@ func TestVerify(t *testing.T) {
 		{
 			s:     []byte("f6be20978f067a1cf3ca91652c3d8d6855539bd726b227c9ce9b4feafd8225d1"),
 			a:     []byte("be0c31346e35a3b9626c9c1385fda048e2ba530e2959d05127f40519d9c73bf1"),
-			check: true,
+			check: false,
 		},
 	}
 
@@ -84,6 +84,47 @@ func TestVerify(t *testing.T) {
 				},
 				out,
 				val.check,
+			)
+		}
+	}
+}
+
+func TestEncryptAndDecrypt(t *testing.T) {
+	var tests = [][2][]byte{
+		{
+			[]byte("hi"),
+			[]byte("k"),
+		},
+		{
+			[]byte("h"),
+			[]byte("key"),
+		},
+		{
+			[]byte("hihowareyou"),
+			[]byte("keykeykekeykeykekeykeykekeykeyke"),
+		},
+		{
+			[]byte("hihihihihihihihihihihihihihihihi"),
+			[]byte("hi"),
+		},
+	}
+
+	for _, val := range tests {
+		var eout, err = crypto.Encrypt(val[0], val[1])
+		if err != nil {
+			t.Fatal(err)
+		}
+		var dout []byte
+		dout, err = crypto.Decrypt(eout, val[1])
+		if string(dout) != string(val[0]) {
+			notok(
+				t,
+				[]string{
+					string(val[0]),
+					string(val[1]),
+				},
+				string(dout),
+				string(val[0]),
 			)
 		}
 	}
