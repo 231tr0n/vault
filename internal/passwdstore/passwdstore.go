@@ -6,18 +6,23 @@ import (
 	"errors"
 	"os"
 
-	"github.com/231tr0n/vault/config"
 	"github.com/231tr0n/vault/pkg/crypto"
 )
 
+var PasswordStoreFilePath = ""
+
+func SetPasswordStoreFilePath(f string) {
+	PasswordStoreFilePath = f
+}
+
 func decryptFileData(p []byte) (map[string]string, error) {
-	var _, err = os.Stat(config.PasswdStoreFile)
+	var _, err = os.Stat(PasswordStoreFilePath)
 	if err != nil {
 		return nil, err
 	}
 
 	var data []byte
-	data, err = os.ReadFile(config.PasswdStoreFile)
+	data, err = os.ReadFile(PasswordStoreFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +74,7 @@ func encryptFileData(passwordStore map[string]string, p []byte) error {
 	var h []byte
 	h, err = crypto.Hash(enc, p, nil)
 
-	err = os.WriteFile(config.PasswdStoreFile, bytes.Join([][]byte{h, enc}, []byte{'-'}), 0700)
+	err = os.WriteFile(PasswordStoreFilePath, bytes.Join([][]byte{h, enc}, []byte{'-'}), 0700)
 	if err != nil {
 		return err
 	}
