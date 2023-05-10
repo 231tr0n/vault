@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/231tr0n/vault/config"
-	"github.com/231tr0n/vault/passwdstore/crypto"
+	"github.com/231tr0n/vault/pkg/crypto"
 )
 
 func decryptFileData(p []byte) (map[string]string, error) {

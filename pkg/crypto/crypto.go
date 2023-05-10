@@ -6,6 +6,7 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"io"
 )
@@ -87,4 +88,13 @@ func Hash(s []byte, p []byte, b []byte) ([]byte, error) {
 
 func Verify(s []byte, a []byte) bool {
 	return hmac.Equal(s, a)
+}
+
+func Generate(s int) ([]byte, error) {
+	var bytes = make([]byte, s)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		return nil, err
+	}
+	return []byte(base64.StdEncoding.EncodeToString(bytes)[:s]), nil
 }
