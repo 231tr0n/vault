@@ -11,6 +11,7 @@ func notok(t *testing.T, i any, o any, w any) {
 }
 
 func TestHash(t *testing.T) {
+	t.Parallel()
 	var p = []byte("passwdkey")
 
 	var tests = [][2][]byte{
@@ -36,6 +37,7 @@ func TestHash(t *testing.T) {
 }
 
 func TestGenerate(t *testing.T) {
+	t.Parallel()
 	var tests = []int{
 		2,
 		5,
@@ -54,6 +56,7 @@ func TestGenerate(t *testing.T) {
 }
 
 func TestVerify(t *testing.T) {
+	t.Parallel()
 	type test struct {
 		s     []byte
 		a     []byte
@@ -90,6 +93,7 @@ func TestVerify(t *testing.T) {
 }
 
 func TestEncryptAndDecrypt(t *testing.T) {
+	t.Parallel()
 	var tests = [][2][]byte{
 		{
 			[]byte("hi"),
