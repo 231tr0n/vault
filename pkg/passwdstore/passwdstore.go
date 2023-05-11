@@ -5,25 +5,42 @@ import (
 	"encoding/json"
 	"errors"
 	"os"
+	"path/filepath"
 
 	"github.com/231tr0n/vault/pkg/crypto"
 )
 
-var passwordStoreFilePath = ""
+var passwdStoreFilePath = ""
 
-// SetpasswordStoreFilePath sets the filepath for password store file
-func SetPasswordStoreFilePath(f string) {
-	passwordStoreFilePath = f
+// Init sets the given filepath for password store file
+func Init(f string) error {
+	if !filepath.IsAbs(f) {
+		return errors.New("Given filepath not absolute.")
+	}
+
+	var err = os.MkdirAll(filepath.Dir(f), 0700)
+	if err != nil {
+		return err
+	}
+
+	_, err = os.Create(passwdStoreFilePath)
+	if err != nil {
+		return err
+	}
+
+	passwdStoreFilePath = f
+
+	return nil
 }
 
 func decryptFileData(p []byte) (map[string]string, error) {
-	var _, err = os.Stat(passwordStoreFilePath)
+	var _, err = os.Stat(passwdStoreFilePath)
 	if err != nil {
 		return nil, err
 	}
 
 	var data []byte
-	data, err = os.ReadFile(passwordStoreFilePath)
+	data, err = os.ReadFile(passwdStoreFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -51,17 +68,17 @@ func decryptFileData(p []byte) (map[string]string, error) {
 		return nil, err
 	}
 
-	var passwordStore = make(map[string]string)
-	err = json.Unmarshal(s, &passwordStore)
+	var passwdStore = make(map[string]string)
+	err = json.Unmarshal(s, &passwdStore)
 	if err != nil {
 		return nil, err
 	}
 
-	return passwordStore, nil
+	return passwdStore, nil
 }
 
-func encryptFileData(passwordStore map[string]string, p []byte) error {
-	var s, err = json.Marshal(passwordStore)
+func encryptFileData(passwdStore map[string]string, p []byte) error {
+	var s, err = json.Marshal(passwdStore)
 	if err != nil {
 		return err
 	}
@@ -75,7 +92,7 @@ func encryptFileData(passwordStore map[string]string, p []byte) error {
 	var h []byte
 	h, err = crypto.Hash(enc, p, nil)
 
-	err = os.WriteFile(passwordStoreFilePath, bytes.Join([][]byte{h, enc}, []byte{'-'}), 0700)
+	err = os.WriteFile(passwdStoreFilePath, bytes.Join([][]byte{h, enc}, []byte{'-'}), 0700)
 	if err != nil {
 		return err
 	}
@@ -85,12 +102,12 @@ func encryptFileData(passwordStore map[string]string, p []byte) error {
 
 // Get gets the key value pair from the store
 func Get(k string, p []byte) (string, error) {
-	var passwordStore, err = decryptFileData(p)
+	var passwdStore, err = decryptFileData(p)
 	if err != nil {
 		return "", err
 	}
 
-	var value, ok = passwordStore[k]
+	var value, ok = passwdStore[k]
 	if ok {
 		return value, nil
 	}
@@ -99,14 +116,14 @@ func Get(k string, p []byte) (string, error) {
 
 // Set sets the key value pair in the store
 func Set(k string, v string, p []byte) error {
-	var passwordStore, err = decryptFileData(p)
+	var passwdStore, err = decryptFileData(p)
 	if err != nil {
 		return err
 	}
 
-	passwordStore[k] = v
+	passwdStore[k] = v
 
-	err = encryptFileData(passwordStore, p)
+	err = encryptFileData(passwdStore, p)
 	if err != nil {
 		return err
 	}
@@ -116,13 +133,13 @@ func Set(k string, v string, p []byte) error {
 
 // List lists all the key value pairs in the store
 func List(p []byte) ([]string, error) {
-	var passwordStore, err = decryptFileData(p)
+	var passwdStore, err = decryptFileData(p)
 	if err != nil {
 		return nil, err
 	}
 
 	var temp []string
-	for i := range passwordStore {
+	for i := range passwdStore {
 		temp = append(temp, i)
 	}
 
@@ -131,14 +148,14 @@ func List(p []byte) ([]string, error) {
 
 // Delete deletes the key value pair provided in the store
 func Delete(k string, p []byte) error {
-	var passwordStore, err = decryptFileData(p)
+	var passwdStore, err = decryptFileData(p)
 	if err != nil {
 		return err
 	}
 
-	delete(passwordStore, k)
+	delete(passwdStore, k)
 
-	err = encryptFileData(passwordStore, p)
+	err = encryptFileData(passwdStore, p)
 	if err != nil {
 		return err
 	}
@@ -146,14 +163,14 @@ func Delete(k string, p []byte) error {
 	return nil
 }
 
-// ChangeMasterPassword changes the password for the store
-func ChangeMasterPassword(p []byte, op []byte) error {
-	var passwordStore, err = decryptFileData(op)
+// ChangeMasterPasswd changes the password for the store
+func ChangeMasterPasswd(p []byte, op []byte) error {
+	var passwdStore, err = decryptFileData(op)
 	if err != nil {
 		return err
 	}
 
-	err = encryptFileData(passwordStore, p)
+	err = encryptFileData(passwdStore, p)
 	if err != nil {
 		return err
 	}

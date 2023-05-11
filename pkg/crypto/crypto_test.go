@@ -6,7 +6,7 @@ import (
 	"github.com/231tr0n/vault/pkg/crypto"
 )
 
-func notok(t *testing.T, i any, o any, w any) {
+func failTestCase(t *testing.T, i any, o any, w any) {
 	t.Error("Input:", i, "|", "Output:", o, "|", "Want:", w)
 }
 
@@ -31,7 +31,7 @@ func TestHash(t *testing.T) {
 			t.Fatal(err)
 		}
 		if !crypto.Verify(out, val[1]) {
-			notok(t, string(val[0]), string(out), string(val[1]))
+			failTestCase(t, string(val[0]), string(out), string(val[1]))
 		}
 	}
 }
@@ -50,7 +50,7 @@ func TestGenerate(t *testing.T) {
 			t.Fatal(err)
 		}
 		if len(out) != val {
-			notok(t, val, len(out), val)
+			failTestCase(t, val, len(out), val)
 		}
 	}
 }
@@ -79,7 +79,7 @@ func TestVerify(t *testing.T) {
 	for _, val := range tests {
 		var out = crypto.Verify(val.a, val.s)
 		if out != val.check {
-			notok(
+			failTestCase(
 				t,
 				[]string{
 					string(val.s),
@@ -121,7 +121,7 @@ func TestEncryptAndDecrypt(t *testing.T) {
 		var dout []byte
 		dout, err = crypto.Decrypt(eout, val[1])
 		if string(dout) != string(val[0]) {
-			notok(
+			failTestCase(
 				t,
 				[]string{
 					string(val[0]),
