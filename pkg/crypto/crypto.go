@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
+	"errors"
 	"io"
 )
 
@@ -73,7 +74,7 @@ func Decrypt(s []byte, p []byte) ([]byte, error) {
 	var out []byte
 	out, err = gcm.Open(nil, nonce, ct, nil)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Wrong password")
 	}
 
 	return out, nil

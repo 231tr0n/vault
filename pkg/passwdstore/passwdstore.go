@@ -23,7 +23,7 @@ func Init(f string) error {
 		return err
 	}
 
-	_, err = os.Create(passwdStoreFilePath)
+	_, err = os.Create(f)
 	if err != nil {
 		return err
 	}
@@ -45,11 +45,13 @@ func decryptFileData(p []byte) (map[string]string, error) {
 		return nil, err
 	}
 
-	var pData = bytes.Split(data, []byte{'-'})
 	if len(data) == 0 {
-		return nil, errors.New("No password data in file to decrypt file data")
-	} else if len(pData) != 2 {
-		return nil, errors.New("Password File Manually Edited")
+		return make(map[string]string), nil
+	}
+
+	var pData = bytes.Split(data, []byte{'-'})
+	if len(pData) != 2 {
+		return nil, errors.New("Password file manually edited")
 	}
 
 	var h []byte
@@ -58,8 +60,8 @@ func decryptFileData(p []byte) (map[string]string, error) {
 		return nil, err
 	}
 
-	if crypto.Verify(h, pData[0]) {
-		return nil, errors.New("Password File Manually Edited")
+	if !crypto.Verify(h, pData[0]) {
+		return nil, errors.New("Password file integrity fail")
 	}
 
 	var s []byte
@@ -107,11 +109,8 @@ func Get(k string, p []byte) (string, error) {
 		return "", err
 	}
 
-	var value, ok = passwdStore[k]
-	if ok {
-		return value, nil
-	}
-	return "", errors.New("Not Found")
+	var value, _ = passwdStore[k]
+	return value, nil
 }
 
 // Set sets the key value pair in the store
@@ -164,13 +163,13 @@ func Delete(k string, p []byte) error {
 }
 
 // ChangeMasterPasswd changes the password for the store
-func ChangeMasterPasswd(p []byte, op []byte) error {
+func ChangeMasterPasswd(np []byte, op []byte) error {
 	var passwdStore, err = decryptFileData(op)
 	if err != nil {
 		return err
 	}
 
-	err = encryptFileData(passwdStore, p)
+	err = encryptFileData(passwdStore, np)
 	if err != nil {
 		return err
 	}

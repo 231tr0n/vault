@@ -25,13 +25,14 @@ func TestHash(t *testing.T) {
 		},
 	}
 
-	for _, val := range tests {
-		var out, err = crypto.Hash(val[0], p, nil)
+	for _, test := range tests {
+		t.Log(test)
+		var out, err = crypto.Hash(test[0], p, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !crypto.Verify(out, val[1]) {
-			failTestCase(t, string(val[0]), string(out), string(val[1]))
+		if !crypto.Verify(out, test[1]) {
+			failTestCase(t, string(test[0]), string(out), string(test[1]))
 		}
 	}
 }
@@ -44,13 +45,14 @@ func TestGenerate(t *testing.T) {
 		112,
 	}
 
-	for _, val := range tests {
-		var out, err = crypto.Generate(val)
+	for _, test := range tests {
+		t.Log(test)
+		var out, err = crypto.Generate(test)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if len(out) != val {
-			failTestCase(t, val, len(out), val)
+		if len(out) != test {
+			failTestCase(t, test, len(out), test)
 		}
 	}
 }
@@ -76,17 +78,18 @@ func TestVerify(t *testing.T) {
 		},
 	}
 
-	for _, val := range tests {
-		var out = crypto.Verify(val.a, val.s)
-		if out != val.check {
+	for _, test := range tests {
+		t.Log(test)
+		var out = crypto.Verify(test.a, test.s)
+		if out != test.check {
 			failTestCase(
 				t,
 				[]string{
-					string(val.s),
-					string(val.a),
+					string(test.s),
+					string(test.a),
 				},
 				out,
-				val.check,
+				test.check,
 			)
 		}
 	}
@@ -113,22 +116,23 @@ func TestEncryptAndDecrypt(t *testing.T) {
 		},
 	}
 
-	for _, val := range tests {
-		var eout, err = crypto.Encrypt(val[0], val[1])
+	for _, test := range tests {
+		t.Log(test)
+		var eout, err = crypto.Encrypt(test[0], test[1])
 		if err != nil {
 			t.Fatal(err)
 		}
 		var dout []byte
-		dout, err = crypto.Decrypt(eout, val[1])
-		if string(dout) != string(val[0]) {
+		dout, err = crypto.Decrypt(eout, test[1])
+		if string(dout) != string(test[0]) {
 			failTestCase(
 				t,
 				[]string{
-					string(val[0]),
-					string(val[1]),
+					string(test[0]),
+					string(test[1]),
 				},
 				string(dout),
-				string(val[0]),
+				string(test[0]),
 			)
 		}
 	}
