@@ -12,10 +12,16 @@ import (
 	"io"
 )
 
+const (
+	aes256KeySize = 32
+)
+
+var ErrWrongPasswd = errors.New("wrong password")
+
 // Encrypt encrypts "s" with password "p" using aes and gcm.
 func Encrypt(s []byte, p []byte) ([]byte, error) {
-	if len(p)%32 != 0 {
-		temp := 32 - (len(p) % 32)
+	if len(p)%aes256KeySize != 0 {
+		temp := aes256KeySize - (len(p) % aes256KeySize)
 		for i := 0; i < temp; i++ {
 			p = append(p, '0')
 		}
@@ -74,7 +80,7 @@ func Decrypt(s []byte, p []byte) ([]byte, error) {
 	var out []byte
 	out, err = gcm.Open(nil, nonce, ct, nil)
 	if err != nil {
-		return nil, errors.New("wrong password")
+		return nil, ErrWrongPasswd
 	}
 
 	return out, nil

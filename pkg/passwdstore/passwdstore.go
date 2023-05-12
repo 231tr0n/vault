@@ -112,7 +112,7 @@ func Get(k string, p []byte) (string, error) {
 		return "", err
 	}
 
-	value, _ := passwdStore[k]
+	value := passwdStore[k]
 	return value, nil
 }
 
