@@ -12,9 +12,9 @@ func failTestCase(t *testing.T, i any, o any, w any) {
 
 func TestHash(t *testing.T) {
 	t.Parallel()
-	var p = []byte("passwdkey")
+	p := []byte("passwdkey")
 
-	var tests = [][2][]byte{
+	tests := [][2][]byte{
 		{
 			[]byte("normalstringtohash"),
 			[]byte("f6be20978f067a1cf3ca91652c3d8d6855539bd726b227c9ce9b4feafd8225d1"),
@@ -27,7 +27,7 @@ func TestHash(t *testing.T) {
 
 	for _, test := range tests {
 		t.Log(test)
-		var out, err = crypto.Hash(test[0], p, nil)
+		out, err := crypto.Hash(test[0], p, nil)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -39,7 +39,7 @@ func TestHash(t *testing.T) {
 
 func TestGenerate(t *testing.T) {
 	t.Parallel()
-	var tests = []int{
+	tests := []int{
 		2,
 		5,
 		112,
@@ -47,7 +47,7 @@ func TestGenerate(t *testing.T) {
 
 	for _, test := range tests {
 		t.Log(test)
-		var out, err = crypto.Generate(test)
+		out, err := crypto.Generate(test)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -65,7 +65,7 @@ func TestVerify(t *testing.T) {
 		check bool
 	}
 
-	var tests = []test{
+	tests := []test{
 		{
 			s:     []byte("f6be20978f067a1cf3ca91652c3d8d6855539bd726b227c9ce9b4feafd8225d1"),
 			a:     []byte("f6be20978f067a1cf3ca91652c3d8d6855539bd726b227c9ce9b4feafd8225d1"),
@@ -80,7 +80,7 @@ func TestVerify(t *testing.T) {
 
 	for _, test := range tests {
 		t.Log(test)
-		var out = crypto.Verify(test.a, test.s)
+		out := crypto.Verify(test.a, test.s)
 		if out != test.check {
 			failTestCase(
 				t,
@@ -97,7 +97,7 @@ func TestVerify(t *testing.T) {
 
 func TestEncryptAndDecrypt(t *testing.T) {
 	t.Parallel()
-	var tests = [][2][]byte{
+	tests := [][2][]byte{
 		{
 			[]byte("hi"),
 			[]byte("k"),
@@ -118,7 +118,7 @@ func TestEncryptAndDecrypt(t *testing.T) {
 
 	for _, test := range tests {
 		t.Log(test)
-		var eout, err = crypto.Encrypt(test[0], test[1])
+		eout, err := crypto.Encrypt(test[0], test[1])
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -12,13 +12,13 @@ import (
 
 var passwdStoreFilePath = ""
 
-// Init sets the given filepath for password store file
+// Init sets the given filepath for password store file.
 func Init(f string) error {
 	if !filepath.IsAbs(f) {
 		return errors.New("given filepath not absolute")
 	}
 
-	var err = os.MkdirAll(filepath.Dir(f), 0700)
+	err := os.MkdirAll(filepath.Dir(f), 0o700)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func Init(f string) error {
 }
 
 func decryptFileData(p []byte) (map[string]string, error) {
-	var _, err = os.Stat(passwdStoreFilePath)
+	_, err := os.Stat(passwdStoreFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func decryptFileData(p []byte) (map[string]string, error) {
 		return make(map[string]string), nil
 	}
 
-	var pData = bytes.Split(data, []byte{'-'})
+	pData := bytes.Split(data, []byte{'-'})
 	if len(pData) != 2 {
 		return nil, errors.New("password file manually edited")
 	}
@@ -70,7 +70,7 @@ func decryptFileData(p []byte) (map[string]string, error) {
 		return nil, err
 	}
 
-	var passwdStore = make(map[string]string)
+	passwdStore := make(map[string]string)
 	err = json.Unmarshal(s, &passwdStore)
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func decryptFileData(p []byte) (map[string]string, error) {
 }
 
 func encryptFileData(passwdStore map[string]string, p []byte) error {
-	var s, err = json.Marshal(passwdStore)
+	s, err := json.Marshal(passwdStore)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func encryptFileData(passwdStore map[string]string, p []byte) error {
 		return err
 	}
 
-	err = os.WriteFile(passwdStoreFilePath, bytes.Join([][]byte{h, enc}, []byte{'-'}), 0700)
+	err = os.WriteFile(passwdStoreFilePath, bytes.Join([][]byte{h, enc}, []byte{'-'}), 0o700)
 	if err != nil {
 		return err
 	}
@@ -105,20 +105,20 @@ func encryptFileData(passwdStore map[string]string, p []byte) error {
 	return nil
 }
 
-// Get gets the key value pair from the store
+// Get gets the key value pair from the store.
 func Get(k string, p []byte) (string, error) {
-	var passwdStore, err = decryptFileData(p)
+	passwdStore, err := decryptFileData(p)
 	if err != nil {
 		return "", err
 	}
 
-	var value, _ = passwdStore[k]
+	value, _ := passwdStore[k]
 	return value, nil
 }
 
-// Set sets the key value pair in the store
+// Set sets the key value pair in the store.
 func Set(k string, v string, p []byte) error {
-	var passwdStore, err = decryptFileData(p)
+	passwdStore, err := decryptFileData(p)
 	if err != nil {
 		return err
 	}
@@ -133,9 +133,9 @@ func Set(k string, v string, p []byte) error {
 	return nil
 }
 
-// List lists all the key value pairs in the store
+// List lists all the key value pairs in the store.
 func List(p []byte) ([]string, error) {
-	var passwdStore, err = decryptFileData(p)
+	passwdStore, err := decryptFileData(p)
 	if err != nil {
 		return nil, err
 	}
@@ -148,9 +148,9 @@ func List(p []byte) ([]string, error) {
 	return temp, nil
 }
 
-// Delete deletes the key value pair provided in the store
+// Delete deletes the key value pair provided in the store.
 func Delete(k string, p []byte) error {
-	var passwdStore, err = decryptFileData(p)
+	passwdStore, err := decryptFileData(p)
 	if err != nil {
 		return err
 	}
@@ -165,9 +165,9 @@ func Delete(k string, p []byte) error {
 	return nil
 }
 
-// ChangePasswd changes the password for the store
+// ChangePasswd changes the password for the store.
 func ChangePasswd(np []byte, op []byte) error {
-	var passwdStore, err = decryptFileData(op)
+	passwdStore, err := decryptFileData(op)
 	if err != nil {
 		return err
 	}

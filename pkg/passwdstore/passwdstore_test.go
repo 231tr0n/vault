@@ -13,9 +13,9 @@ func failTestCase(t *testing.T, i any, o any, w any) {
 }
 
 func TestInit(t *testing.T) {
-	var tempDir = t.TempDir()
+	tempDir := t.TempDir()
 
-	var tests = [][]string{
+	tests := [][]string{
 		{".vault", ".passwdstore"},
 		{".vault", ".passwdstore"},
 		{".vault", ".teststore"},
@@ -23,9 +23,9 @@ func TestInit(t *testing.T) {
 
 	for _, test := range tests {
 		t.Log(test)
-		var passwdStoreFilePath = filepath.Join(append([]string{tempDir}, test...)...)
+		passwdStoreFilePath := filepath.Join(append([]string{tempDir}, test...)...)
 
-		var err = passwdstore.Init(passwdStoreFilePath)
+		err := passwdstore.Init(passwdStoreFilePath)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -37,26 +37,26 @@ func TestInit(t *testing.T) {
 	}
 }
 
-func TestChangeMasterPasswd(t *testing.T) {
-	var tempDir = t.TempDir()
+func TestChangePasswd(t *testing.T) {
+	tempDir := t.TempDir()
 
-	var passwdStoreFilePath = filepath.Join(tempDir, ".vault", ".passwdstore")
+	passwdStoreFilePath := filepath.Join(tempDir, ".vault", ".passwdstore")
 
-	var tests = [][2][]byte{
+	tests := [][2][]byte{
 		{
 			[]byte("testsecret"),
 			[]byte("secret"),
 		},
 	}
 
-	var err = passwdstore.Init(passwdStoreFilePath)
+	err := passwdstore.Init(passwdStoreFilePath)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for _, test := range tests {
 		t.Log(test)
-		var err = passwdstore.Set("hi", "test", test[0])
+		err := passwdstore.Set("hi", "test", test[0])
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -80,25 +80,25 @@ func TestChangeMasterPasswd(t *testing.T) {
 	}
 }
 
-func TestSetGetListDelete(t *testing.T) {
-	var tempDir = t.TempDir()
+func TestStoreMethods(t *testing.T) {
+	tempDir := t.TempDir()
 
-	var passwdStoreFilePath = filepath.Join(tempDir, ".vault", ".passwdstore")
+	passwdStoreFilePath := filepath.Join(tempDir, ".vault", ".passwdstore")
 
-	var tests = [][3]string{
+	tests := [][3]string{
 		{"hi", "how are you", "secret"},
 	}
 
-	var err = passwdstore.Init(passwdStoreFilePath)
+	err := passwdstore.Init(passwdStoreFilePath)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	for _, test := range tests {
 		t.Log(test)
-		var passwd = []byte(test[2])
+		passwd := []byte(test[2])
 
-		var err = passwdstore.Set(test[0], test[1], passwd)
+		err := passwdstore.Set(test[0], test[1], passwd)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -119,7 +119,7 @@ func TestSetGetListDelete(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		var check = false
+		check := false
 		for _, val := range list {
 			if val == test[0] {
 				check = true

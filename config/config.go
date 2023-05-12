@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 )
 
-var (
-	PasswdStoreFile = filepath.Join(os.Getenv("HOME"), ".vault", ".passwdstore")
-)
+var passwdStoreFilePath = filepath.Join(os.Getenv("HOME"), ".vault", ".passwdstore")
+
+func GetPasswdStoreFilePath() string {
+	return passwdStoreFilePath
+}
