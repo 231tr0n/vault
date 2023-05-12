@@ -12,7 +12,7 @@ import (
 	"io"
 )
 
-// Encryt encrypts "s" with password "p" using aes and gcm
+// Encrypt encrypts "s" with password "p" using aes and gcm
 func Encrypt(s []byte, p []byte) ([]byte, error) {
 	if len(p)%32 != 0 {
 		var temp = 32 - (len(p) % 32)
@@ -74,7 +74,7 @@ func Decrypt(s []byte, p []byte) ([]byte, error) {
 	var out []byte
 	out, err = gcm.Open(nil, nonce, ct, nil)
 	if err != nil {
-		return nil, errors.New("Wrong password")
+		return nil, errors.New("wrong password")
 	}
 
 	return out, nil

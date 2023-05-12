@@ -124,6 +124,9 @@ func TestEncryptAndDecrypt(t *testing.T) {
 		}
 		var dout []byte
 		dout, err = crypto.Decrypt(eout, test[1])
+		if err != nil {
+			t.Fatal(err)
+		}
 		if string(dout) != string(test[0]) {
 			failTestCase(
 				t,

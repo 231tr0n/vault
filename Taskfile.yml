@@ -1,0 +1,15 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+
+tasks:
+  checks:
+    - staticcheck -checks all ./...
+    - golangci-lint run --enable-all
+  default:
+    cmds:
+      - echo "{{.GREETING}}"
+    silent: true

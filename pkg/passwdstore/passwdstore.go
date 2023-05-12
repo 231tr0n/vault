@@ -15,7 +15,7 @@ var passwdStoreFilePath = ""
 // Init sets the given filepath for password store file
 func Init(f string) error {
 	if !filepath.IsAbs(f) {
-		return errors.New("Given filepath not absolute.")
+		return errors.New("given filepath not absolute")
 	}
 
 	var err = os.MkdirAll(filepath.Dir(f), 0700)
@@ -51,7 +51,7 @@ func decryptFileData(p []byte) (map[string]string, error) {
 
 	var pData = bytes.Split(data, []byte{'-'})
 	if len(pData) != 2 {
-		return nil, errors.New("Password file manually edited")
+		return nil, errors.New("password file manually edited")
 	}
 
 	var h []byte
@@ -61,7 +61,7 @@ func decryptFileData(p []byte) (map[string]string, error) {
 	}
 
 	if !crypto.Verify(h, pData[0]) {
-		return nil, errors.New("Password file integrity fail")
+		return nil, errors.New("password file integrity fail")
 	}
 
 	var s []byte
@@ -93,6 +93,9 @@ func encryptFileData(passwdStore map[string]string, p []byte) error {
 
 	var h []byte
 	h, err = crypto.Hash(enc, p, nil)
+	if err != nil {
+		return err
+	}
 
 	err = os.WriteFile(passwdStoreFilePath, bytes.Join([][]byte{h, enc}, []byte{'-'}), 0700)
 	if err != nil {
@@ -162,8 +165,8 @@ func Delete(k string, p []byte) error {
 	return nil
 }
 
-// ChangeMasterPasswd changes the password for the store
-func ChangeMasterPasswd(np []byte, op []byte) error {
+// ChangePasswd changes the password for the store
+func ChangePasswd(np []byte, op []byte) error {
 	var passwdStore, err = decryptFileData(op)
 	if err != nil {
 		return err

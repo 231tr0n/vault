@@ -61,7 +61,7 @@ func TestChangeMasterPasswd(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = passwdstore.ChangeMasterPasswd(test[1], test[0])
+		err = passwdstore.ChangePasswd(test[1], test[0])
 		if err != nil {
 			t.Fatal(err)
 		}
