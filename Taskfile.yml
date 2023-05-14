@@ -3,13 +3,50 @@
 version: '3'
 
 vars:
-  GREETING: Hello, World!
+  GREETING: Hi!
 
 tasks:
-  checks:
-    - staticcheck -checks all ./...
-    - golangci-lint run --enable-all
-  default:
+  fmt:
     cmds:
-      - echo "{{.GREETING}}"
+      - go fmt ./...
+      - gofumpt -e -l -w -extra .
+
+  lint:
+    cmds:
+      - staticcheck -checks all ./...
+      - golangci-lint run
+
+  coverage:
+    cmds:
+      - go test -cover -coverprofile=coverage/cover.out ./...
+
+  showcoverage:
+    cmds:
+      - go tool cover -html coverage/cover.out
+
+  vault-help:
+    cmds:
+      - go run cmd/vault/* -help
+
+  docs:
+    cmds:
+      - go run golang.org/x/pkgsite/cmd/pkgsite@latest
+
+  build:
+    cmds:
+      - go generate
+      - go build -o bin/vault cmd/vault/*
+
+  run:
+    cmds:
+      - go generate
+      - go run cmd/vault/* {{.CLI_ARGS}}
+
+  test:
+    cmds:
+      - go test ./...
+
+  default:
     silent: true
+    cmds:
+      - echo "{{.GREETING}}, no task is provided to execute."

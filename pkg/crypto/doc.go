@@ -1,4 +1,7 @@
 /*
-Package crypto implements basic encryption using aes and gcm, hmac with sha256 based hashing and random string generation.
+Package crypto implements the following:-
+Basic encryption using aes and gcm
+Hmac with sha256 based hashing
+Random string generation.
 */
 package crypto

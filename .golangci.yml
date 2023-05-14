@@ -1,0 +1,12 @@
+linters:
+  enable-all: true
+  disable:
+    - varnamelen
+    - funlen
+    - cyclop
+    - paralleltest
+    - gochecknoglobals
+    - wsl
+
+issues:
+  fix: true

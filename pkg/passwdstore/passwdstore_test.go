@@ -8,7 +8,8 @@ import (
 	"github.com/231tr0n/vault/pkg/passwdstore"
 )
 
-func failTestCase(t *testing.T, i any, o any, w any) {
+func failTestCase(t *testing.T, i, o, w any) {
+	t.Helper()
 	t.Error("Input:", i, "|", "Output:", o, "|", "Want:", w)
 }
 
@@ -68,12 +69,15 @@ func TestChangePasswd(t *testing.T) {
 
 		var value string
 		value, err = passwdstore.Get("hi", test[1])
+
 		if err != nil {
 			if err.Error() != "Wrong Password" {
 				t.Fatal(err)
 			}
+
 			failTestCase(t, test, test[0], test[1])
 		}
+
 		if value != "test" {
 			failTestCase(t, test, test[0], test[1])
 		}
@@ -105,6 +109,7 @@ func TestStoreMethods(t *testing.T) {
 
 		var value string
 		value, err = passwdstore.Get(test[0], passwd)
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -115,17 +120,21 @@ func TestStoreMethods(t *testing.T) {
 
 		var list []string
 		list, err = passwdstore.List(passwd)
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		check := false
+
 		for _, val := range list {
 			if val == test[0] {
 				check = true
+
 				break
 			}
 		}
+
 		if !check {
 			failTestCase(t, test, "\"\"", test[0])
 		}

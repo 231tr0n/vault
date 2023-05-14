@@ -16,10 +16,14 @@ const (
 	aes256KeySize = 32
 )
 
-var ErrWrongPasswd = errors.New("wrong password")
+var ErrWrongPasswd = errors.New("crypto: wrong password")
+
+func errWrap(err error) error {
+	return errors.New("crypto: " + err.Error())
+}
 
 // Encrypt encrypts "s" with password "p" using aes and gcm.
-func Encrypt(s []byte, p []byte) ([]byte, error) {
+func Encrypt(s, p []byte) ([]byte, error) {
 	if len(p)%aes256KeySize != 0 {
 		temp := aes256KeySize - (len(p) % aes256KeySize)
 		for i := 0; i < temp; i++ {
@@ -29,56 +33,51 @@ func Encrypt(s []byte, p []byte) ([]byte, error) {
 
 	cr, err := aes.NewCipher(p)
 	if err != nil {
-		return nil, err
+		return nil, errWrap(err)
 	}
 
-	var gcm cipher.AEAD
-	gcm, err = cipher.NewGCM(cr)
+	gcm, err := cipher.NewGCM(cr)
 	if err != nil {
-		return nil, err
+		return nil, errWrap(err)
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 
 	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, err
+		return nil, errWrap(err)
 	}
 
 	return []byte(hex.EncodeToString(gcm.Seal(nonce, nonce, s, nil))), nil
 }
 
 // Decrypt decrypts "s" with password "p" using aes and gcm.
-func Decrypt(s []byte, p []byte) ([]byte, error) {
-	var err error
-	s, err = hex.DecodeString(string(s))
+func Decrypt(s, p []byte) ([]byte, error) {
+	s, err := hex.DecodeString(string(s))
 	if err != nil {
-		return nil, err
+		return nil, errWrap(err)
 	}
 
-	if len(p)%32 != 0 {
-		temp := 32 - (len(p) % 32)
+	if len(p)%aes256KeySize != 0 {
+		temp := aes256KeySize - (len(p) % aes256KeySize)
 		for i := 0; i < temp; i++ {
 			p = append(p, '0')
 		}
 	}
 
-	var cr cipher.Block
-	cr, err = aes.NewCipher(p)
+	cr, err := aes.NewCipher(p)
 	if err != nil {
-		return nil, err
+		return nil, errWrap(err)
 	}
 
-	var gcm cipher.AEAD
-	gcm, err = cipher.NewGCM(cr)
+	gcm, err := cipher.NewGCM(cr)
 	if err != nil {
-		return nil, err
+		return nil, errWrap(err)
 	}
 
 	nonceSize := gcm.NonceSize()
 	nonce, ct := s[:nonceSize], s[nonceSize:]
 
-	var out []byte
-	out, err = gcm.Open(nil, nonce, ct, nil)
+	out, err := gcm.Open(nil, nonce, ct, nil)
 	if err != nil {
 		return nil, ErrWrongPasswd
 	}
@@ -86,18 +85,36 @@ func Decrypt(s []byte, p []byte) ([]byte, error) {
 	return out, nil
 }
 
-// Hash hashes "s" with password "p" using hmac and sha256, appends it to "b" and returns it.
-func Hash(s []byte, p []byte, b []byte) ([]byte, error) {
+// HmacHash hashes "s" with password "p" using hmac and sha256, appends it to "b" and returns it.
+func HmacHash(s, p, b []byte) ([]byte, error) {
 	hash := hmac.New(sha256.New, p)
 	n, err := hash.Write(s)
 	if n != len(s) || err != nil {
-		return nil, err
+		return nil, errWrap(err)
 	}
+
 	return []byte(hex.EncodeToString(hash.Sum(b))), nil
 }
 
-// Verify verifies if "s" is equal to "a" in a secure way.
-func Verify(s []byte, a []byte) bool {
+// Hash hashes "s" using sha256, appends it to "b" and returns it.
+func Hash(s, b []byte) ([]byte, error) {
+	hash := sha256.New()
+	n, err := hash.Write(s)
+	if n != len(s) || err != nil {
+		return nil, errWrap(err)
+	}
+
+	return []byte(hex.EncodeToString(hash.Sum(b))), nil
+}
+
+// Verify verifies if "s" is equal to "a".
+func Verify(s, a []byte) bool {
+	return string(s) == string(a)
+}
+
+// HmacVerify verifies if "s" is equal to "a" in a secure way.
+// Use this for hmac based hashes.
+func HmacVerify(s, a []byte) bool {
 	return hmac.Equal(s, a)
 }
 
@@ -105,9 +122,9 @@ func Verify(s []byte, a []byte) bool {
 // This function is used to generate random passwords.
 func Generate(s int) ([]byte, error) {
 	bytes := make([]byte, s)
-	_, err := rand.Read(bytes)
-	if err != nil {
-		return nil, err
+	if _, err := rand.Read(bytes); err != nil {
+		return nil, errWrap(err)
 	}
+
 	return []byte(base64.StdEncoding.EncodeToString(bytes)[:s]), nil
 }

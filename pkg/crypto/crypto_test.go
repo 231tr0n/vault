@@ -6,13 +6,13 @@ import (
 	"github.com/231tr0n/vault/pkg/crypto"
 )
 
-func failTestCase(t *testing.T, i any, o any, w any) {
+func failTestCase(t *testing.T, i, o, w any) {
+	t.Helper()
 	t.Error("Input:", i, "|", "Output:", o, "|", "Want:", w)
 }
 
 func TestHash(t *testing.T) {
 	t.Parallel()
-	p := []byte("passwdkey")
 
 	tests := [][2][]byte{
 		{
@@ -27,10 +27,11 @@ func TestHash(t *testing.T) {
 
 	for _, test := range tests {
 		t.Log(test)
-		out, err := crypto.Hash(test[0], p, nil)
+		out, err := crypto.Hash(test[0], nil)
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if !crypto.Verify(out, test[1]) {
 			failTestCase(t, string(test[0]), string(out), string(test[1]))
 		}
@@ -39,6 +40,7 @@ func TestHash(t *testing.T) {
 
 func TestGenerate(t *testing.T) {
 	t.Parallel()
+
 	tests := []int{
 		2,
 		5,
@@ -51,6 +53,7 @@ func TestGenerate(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if len(out) != test {
 			failTestCase(t, test, len(out), test)
 		}
@@ -59,6 +62,7 @@ func TestGenerate(t *testing.T) {
 
 func TestVerify(t *testing.T) {
 	t.Parallel()
+
 	type test struct {
 		s     []byte
 		a     []byte
@@ -81,6 +85,7 @@ func TestVerify(t *testing.T) {
 	for _, test := range tests {
 		t.Log(test)
 		out := crypto.Verify(test.a, test.s)
+
 		if out != test.check {
 			failTestCase(
 				t,
@@ -97,6 +102,7 @@ func TestVerify(t *testing.T) {
 
 func TestEncryptAndDecrypt(t *testing.T) {
 	t.Parallel()
+
 	tests := [][2][]byte{
 		{
 			[]byte("hi"),
@@ -122,11 +128,14 @@ func TestEncryptAndDecrypt(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		var dout []byte
+
 		dout, err = crypto.Decrypt(eout, test[1])
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if string(dout) != string(test[0]) {
 			failTestCase(
 				t,
