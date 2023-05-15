@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"github.com/231tr0n/vault/pkg/errorwrap"
 	"io"
 )
 
@@ -16,11 +17,9 @@ const (
 	aes256KeySize = 32
 )
 
-var ErrWrongPasswd = errors.New("crypto: wrong password")
-
-func errWrap(err error) error {
-	return errors.New("crypto: " + err.Error())
-}
+var (
+	ErrWrongPasswd = errors.New("wrong password")
+)
 
 // Encrypt encrypts "s" with password "p" using aes and gcm.
 func Encrypt(s, p []byte) ([]byte, error) {
@@ -33,18 +32,18 @@ func Encrypt(s, p []byte) ([]byte, error) {
 
 	cr, err := aes.NewCipher(p)
 	if err != nil {
-		return nil, errWrap(err)
+		return nil, errorwrap.ErrWrap(err)
 	}
 
 	gcm, err := cipher.NewGCM(cr)
 	if err != nil {
-		return nil, errWrap(err)
+		return nil, errorwrap.ErrWrap(err)
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 
 	if _, err = io.ReadFull(rand.Reader, nonce); err != nil {
-		return nil, errWrap(err)
+		return nil, errorwrap.ErrWrap(err)
 	}
 
 	return []byte(hex.EncodeToString(gcm.Seal(nonce, nonce, s, nil))), nil
@@ -54,7 +53,7 @@ func Encrypt(s, p []byte) ([]byte, error) {
 func Decrypt(s, p []byte) ([]byte, error) {
 	s, err := hex.DecodeString(string(s))
 	if err != nil {
-		return nil, errWrap(err)
+		return nil, errorwrap.ErrWrap(err)
 	}
 
 	if len(p)%aes256KeySize != 0 {
@@ -66,12 +65,12 @@ func Decrypt(s, p []byte) ([]byte, error) {
 
 	cr, err := aes.NewCipher(p)
 	if err != nil {
-		return nil, errWrap(err)
+		return nil, errorwrap.ErrWrap(err)
 	}
 
 	gcm, err := cipher.NewGCM(cr)
 	if err != nil {
-		return nil, errWrap(err)
+		return nil, errorwrap.ErrWrap(err)
 	}
 
 	nonceSize := gcm.NonceSize()
@@ -79,7 +78,7 @@ func Decrypt(s, p []byte) ([]byte, error) {
 
 	out, err := gcm.Open(nil, nonce, ct, nil)
 	if err != nil {
-		return nil, ErrWrongPasswd
+		return nil, errorwrap.ErrWrap(ErrWrongPasswd)
 	}
 
 	return out, nil
@@ -90,7 +89,7 @@ func HmacHash(s, p, b []byte) ([]byte, error) {
 	hash := hmac.New(sha256.New, p)
 	n, err := hash.Write(s)
 	if n != len(s) || err != nil {
-		return nil, errWrap(err)
+		return nil, errorwrap.ErrWrap(err)
 	}
 
 	return []byte(hex.EncodeToString(hash.Sum(b))), nil
@@ -101,7 +100,7 @@ func Hash(s, b []byte) ([]byte, error) {
 	hash := sha256.New()
 	n, err := hash.Write(s)
 	if n != len(s) || err != nil {
-		return nil, errWrap(err)
+		return nil, errorwrap.ErrWrap(err)
 	}
 
 	return []byte(hex.EncodeToString(hash.Sum(b))), nil
@@ -123,7 +122,7 @@ func HmacVerify(s, a []byte) bool {
 func Generate(s int) ([]byte, error) {
 	bytes := make([]byte, s)
 	if _, err := rand.Read(bytes); err != nil {
-		return nil, errWrap(err)
+		return nil, errorwrap.ErrWrap(err)
 	}
 
 	return []byte(base64.StdEncoding.EncodeToString(bytes)[:s]), nil
