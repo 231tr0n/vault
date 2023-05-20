@@ -62,6 +62,11 @@ func Parse() error {
 		}
 
 		newPwd, err := readSecureInput("Enter new vault password:")
+		newPwdCheck, err := readSecureInput("Enter new vault password once again:")
+		if string(newPwd) != string(newPwdCheck) {
+			fmt.Println("-----------------")
+			fmt.Println("Passwords don't match")
+		}
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
