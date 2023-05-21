@@ -1,15 +1,17 @@
 package cli
 
 import (
-	"bufio"
+	_ "bufio"
 	"flag"
 	"fmt"
-	"os"
+	_ "os"
+	"syscall"
 
 	"github.com/231tr0n/vault/config"
 	"github.com/231tr0n/vault/pkg/crypto"
 	"github.com/231tr0n/vault/pkg/errorwrap"
 	"github.com/231tr0n/vault/pkg/passwdstore"
+	"golang.org/x/term"
 )
 
 // Init initlialises the passwdstore.
@@ -20,12 +22,14 @@ func Init() error {
 func readSecureInput(c string) ([]byte, error) {
 	fmt.Print(c)
 
-	fmt.Print("\033[?25l\033[8m")
+	// fmt.Print("\033[?25l\033[8m")
 
-	stdinReader := bufio.NewReader(os.Stdin)
-	s, err := stdinReader.ReadBytes('\n')
+	// stdinReader := bufio.NewReader(os.Stdin)
+	// s, err := stdinReader.ReadBytes('\n')
 
-	fmt.Print("\033[28m\033[?25h")
+	// fmt.Print("\033[28m\033[?25h")
+
+	s, err := term.ReadPassword(int(syscall.Stdin))
 
 	return s, errorwrap.ErrWrap(err)
 }
@@ -45,7 +49,7 @@ func Parse() error {
 	fmt.Println("Vault")
 	fmt.Println("-----------------")
 	if *clear {
-		pwd, err := readSecureInput("Enter vault password:")
+		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
@@ -57,17 +61,17 @@ func Parse() error {
 		fmt.Println("-----------------")
 		fmt.Println("Vault cleared")
 	} else if *change {
-		oldPwd, err := readSecureInput("Enter old vault password:")
+		oldPwd, err := readSecureInput("Enter old vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
 
-		newPwd, err := readSecureInput("Enter new vault password:")
+		newPwd, err := readSecureInput("Enter new vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
 
-		newPwdCheck, err := readSecureInput("Enter new vault password once again:")
+		newPwdCheck, err := readSecureInput("Enter new vault password once again: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
@@ -85,7 +89,7 @@ func Parse() error {
 		fmt.Println("-----------------")
 		fmt.Println("Vault password changed")
 	} else if *list {
-		pwd, err := readSecureInput("Enter vault password:")
+		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
@@ -103,7 +107,7 @@ func Parse() error {
 			fmt.Println(i, val)
 		}
 	} else if *get != "" {
-		pwd, err := readSecureInput("Enter vault password:")
+		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
@@ -116,12 +120,12 @@ func Parse() error {
 		fmt.Println("-----------------")
 		fmt.Println("Password:", value)
 	} else if *put != "" {
-		value, err := readSecureInput("Enter password for " + *put + ":")
+		value, err := readSecureInput("Enter password for " + *put + ": ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
 
-		pwd, err := readSecureInput("Enter vault password:")
+		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
@@ -134,7 +138,7 @@ func Parse() error {
 		fmt.Println("-----------------")
 		fmt.Println("Password stored")
 	} else if *del != "" {
-		pwd, err := readSecureInput("Enter vault password:")
+		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
