@@ -44,7 +44,7 @@ tasks:
 
   build:
     cmds:
-      - go generate
+      - go generate ./...
       - GOOS=linux GOARCH=amd64 go build -o bin/{{.EXECUTABLE_NAME}} cmd/vault/*
 
   buildrun:
@@ -53,7 +53,7 @@ tasks:
 
   run:
     cmds:
-      - go generate
+      - go generate ./...
       - go run cmd/vault/* {{.CLI_ARGS}}
 
   test:
@@ -63,6 +63,15 @@ tasks:
   clean:
     cmds:
       - rm -rf bin/*
+
+  upgrade:
+    cmds:
+      - go get -u ./...
+      - go mod tidy
+
+  install-deps:
+    cmds:
+      - go mod tidy
 
   default:
     silent: true
