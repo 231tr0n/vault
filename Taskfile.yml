@@ -5,6 +5,7 @@ version: '3'
 vars:
   GREETING: Hi!
   EXECUTABLE_NAME: vault
+  DOCKER_IMAGE_NAME: vault
 
 tasks:
   fmt:
@@ -14,11 +15,11 @@ tasks:
 
   dockerbuild:
     cmds:
-      - sudo docker build -t vault .
+      - sudo docker build -t {{.DOCKER_IMAGE_NAME}} .
 
   dockerrun:
     cmds:
-      - sudo docker run -it vault {{.CLI_ARGS}}
+      - sudo docker run -it {{.DOCKER_IMAGE_NAME}} {{.CLI_ARGS}}
 
   lint:
     cmds:
@@ -58,6 +59,10 @@ tasks:
   test:
     cmds:
       - go test ./...
+
+  clean:
+    cmds:
+      - rm -rf bin/*
 
   default:
     silent: true
