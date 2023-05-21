@@ -17,11 +17,11 @@ tasks:
 
   dockerbuild:
     cmds:
-      - sudo docker build -t {{.DOCKER_IMAGE_NAME}} .
+      - docker build -t {{.DOCKER_IMAGE_NAME}} .
 
   dockerrun:
     cmds:
-      - sudo docker run -v {{.VAULT_DIR}}:{{.DOCKER_MOUNT_PATH}} -it {{.DOCKER_IMAGE_NAME}} {{.CLI_ARGS}}
+      - docker run -v {{.VAULT_DIR}}:{{.DOCKER_MOUNT_PATH}} -it {{.DOCKER_IMAGE_NAME}} {{.CLI_ARGS}}
 
   lint:
     cmds:
@@ -47,11 +47,13 @@ tasks:
   build:
     cmds:
       - go generate ./...
-      - GOOS=linux GOARCH=amd64 go build -o bin/{{.EXECUTABLE_NAME}} cmd/vault/*
+      - GOOS=linux GOARCH=amd64 go build -o bin/{{.EXECUTABLE_NAME}}-linux cmd/vault/*
+      - GOOS=windows GOARCH=amd64 go build -o bin/{{.EXECUTABLE_NAME}}-windows cmd/vault/*
+      - GOOS=darwin GOARCH=amd64 go build -o bin/{{.EXECUTABLE_NAME}}-darwin cmd/vault/*
 
   buildrun:
     cmds:
-      - ./bin/{{.EXECUTABLE_NAME}} {{.CLI_ARGS}}
+      - ./bin/{{.EXECUTABLE_NAME}}-$(go env GOOS) {{.CLI_ARGS}}
 
   run:
     cmds:
