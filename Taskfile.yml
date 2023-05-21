@@ -6,6 +6,8 @@ vars:
   GREETING: Hi!
   EXECUTABLE_NAME: vault
   DOCKER_IMAGE_NAME: vault
+  VAULT_DIR: /home/zeltron/.vault
+  DOCKER_MOUNT_PATH: /root/.vault
 
 tasks:
   fmt:
@@ -19,7 +21,7 @@ tasks:
 
   dockerrun:
     cmds:
-      - sudo docker run -it {{.DOCKER_IMAGE_NAME}} {{.CLI_ARGS}}
+      - sudo docker run -v {{.VAULT_DIR}}:{{.DOCKER_MOUNT_PATH}} -it {{.DOCKER_IMAGE_NAME}} {{.CLI_ARGS}}
 
   lint:
     cmds:
@@ -69,7 +71,7 @@ tasks:
       - go get -u ./...
       - go mod tidy
 
-  install-deps:
+  installdeps:
     cmds:
       - go mod tidy
 
