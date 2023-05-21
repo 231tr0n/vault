@@ -7,6 +7,10 @@ linters:
     - paralleltest
     - gochecknoglobals
     - wsl
+    - goerr113
+    - gocognit
+    - wrapcheck
+    - dupl
 
 issues:
   fix: true

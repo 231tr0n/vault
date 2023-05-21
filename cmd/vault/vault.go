@@ -10,16 +10,22 @@ import (
 func main() {
 	err := cli.Init()
 	if err != nil {
+		//nolint
 		fmt.Println("-----------------")
+		//nolint
 		fmt.Println(err)
+		//nolint
 		fmt.Println("-----------------")
 		os.Exit(1)
 	}
 
 	err = cli.Parse()
 	if err != nil {
+		//nolint
 		fmt.Println("-----------------")
+		//nolint
 		fmt.Println(err)
+		//nolint
 		fmt.Println("-----------------")
 		os.Exit(1)
 	}

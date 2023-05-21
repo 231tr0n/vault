@@ -1,9 +1,12 @@
 package cli
 
 import (
+	// Used by the commented code.
 	_ "bufio"
 	"flag"
 	"fmt"
+
+	// Used by the commented code.
 	_ "os"
 	"syscall"
 
@@ -20,6 +23,7 @@ func Init() error {
 }
 
 func readSecureInput(c string) ([]byte, error) {
+	//nolint
 	fmt.Print(c)
 
 	// fmt.Print("\033[?25l\033[8m")
@@ -29,6 +33,7 @@ func readSecureInput(c string) ([]byte, error) {
 
 	// fmt.Print("\033[28m\033[?25h")
 
+	//nolint
 	s, err := term.ReadPassword(int(syscall.Stdin))
 
 	return s, errorwrap.ErrWrap(err)
@@ -43,12 +48,19 @@ func Parse() error {
 	put := flag.String("put", "", "Puts the password in the vault")
 	del := flag.String("delete", "", "Deletes the password in the vault")
 	generate := flag.Int("generate", 0, "Generates a new random password of length given")
+
 	flag.Parse()
 
+	//nolint
 	fmt.Println("-----------------")
+	//nolint
 	fmt.Println("Vault")
+	//nolint
 	fmt.Println("-----------------")
-	if *clear {
+
+switch1:
+	switch {
+	case *clear:
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
@@ -58,9 +70,12 @@ func Parse() error {
 			return errorwrap.ErrWrap(err)
 		}
 
+		//nolint
 		fmt.Println("-----------------")
+		//nolint
 		fmt.Println("Vault cleared")
-	} else if *change {
+
+	case *change:
 		oldPwd, err := readSecureInput("Enter old vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
@@ -77,8 +92,12 @@ func Parse() error {
 		}
 
 		if string(newPwd) != string(newPwdCheck) {
+			//nolint
 			fmt.Println("-----------------")
+			//nolint
 			fmt.Println("Passwords don't match")
+
+			break switch1
 		}
 
 		err = passwdstore.ChangePasswd(newPwd, oldPwd)
@@ -86,9 +105,12 @@ func Parse() error {
 			return errorwrap.ErrWrap(err)
 		}
 
+		//nolint
 		fmt.Println("-----------------")
+		//nolint
 		fmt.Println("Vault password changed")
-	} else if *list {
+
+	case *list:
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
@@ -99,14 +121,19 @@ func Parse() error {
 			return errorwrap.ErrWrap(err)
 		}
 
+		//nolint
 		fmt.Println("-----------------")
+		//nolint
 		fmt.Println("List of passwords")
+		//nolint
 		fmt.Println("-----------------")
 
 		for i, val := range list {
+			//nolint
 			fmt.Println(i, val)
 		}
-	} else if *get != "" {
+
+	case *get != "":
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
@@ -117,9 +144,12 @@ func Parse() error {
 			return errorwrap.ErrWrap(err)
 		}
 
+		//nolint
 		fmt.Println("-----------------")
+		//nolint
 		fmt.Println("Password:", value)
-	} else if *put != "" {
+
+	case *put != "":
 		value, err := readSecureInput("Enter password for " + *put + ": ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
@@ -135,9 +165,12 @@ func Parse() error {
 			return errorwrap.ErrWrap(err)
 		}
 
+		//nolint
 		fmt.Println("-----------------")
+		//nolint
 		fmt.Println("Password stored")
-	} else if *del != "" {
+
+	case *del != "":
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
 			return errorwrap.ErrWrap(err)
@@ -148,20 +181,27 @@ func Parse() error {
 			return errorwrap.ErrWrap(err)
 		}
 
+		//nolint
 		fmt.Println("-----------------")
+		//nolint
 		fmt.Println("Password deleted")
-	} else if *generate > 0 {
+
+	case *generate > 0:
 		pwd, err := crypto.Generate(*generate)
 		if err != nil {
 			return errorwrap.ErrWrap(err)
 		}
 
+		//nolint
 		fmt.Println("-----------------")
+		//nolint
 		fmt.Println("Generated password:", string(pwd))
-	} else {
+	default:
+		//nolint
 		fmt.Println("No arguments given. Run -help to get a list of arguments.")
 	}
 
+	//nolint
 	fmt.Println("-----------------")
 
 	return nil

@@ -37,6 +37,7 @@ func Init(f string) error {
 	if stat, err := os.Stat(f); err == nil {
 		if !stat.IsDir() {
 			passwdStoreFilePath = f
+
 			return nil
 		}
 	}
@@ -225,7 +226,10 @@ func Clear(p []byte) error {
 		return errorwrap.ErrWrap(err)
 	}
 
-	empty := passwdStore{}
+	empty := passwdStore{
+		Passwd: []byte(""),
+		Store:  make(map[string]string),
+	}
 	empty.Passwd = p
 	err = encryptFileData(empty, p)
 	if err != nil {

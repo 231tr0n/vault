@@ -26,7 +26,7 @@ tasks:
   lint:
     cmds:
       - staticcheck -checks all ./...
-      - golangci-lint run
+      - golangci-lint run --sort-results
 
   coverprofile:
     cmds:
@@ -47,9 +47,11 @@ tasks:
   build:
     cmds:
       - go generate ./...
+      - rm -rf bin/*
       - GOOS=linux GOARCH=amd64 go build -o bin/{{.EXECUTABLE_NAME}}-linux cmd/vault/*
       - GOOS=windows GOARCH=amd64 go build -o bin/{{.EXECUTABLE_NAME}}-windows cmd/vault/*
       - GOOS=darwin GOARCH=amd64 go build -o bin/{{.EXECUTABLE_NAME}}-darwin cmd/vault/*
+      - zip -r -j bin/vault.zip bin/*
 
   buildrun:
     cmds:
