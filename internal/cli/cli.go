@@ -1,4 +1,3 @@
-// Package cli is an internal package used to parse cli arguments and run respective functionality.
 package cli
 
 import (
@@ -13,6 +12,7 @@ import (
 	"github.com/231tr0n/vault/pkg/passwdstore"
 )
 
+// Init initlialises the passwdstore.
 func Init() error {
 	return errorwrap.ErrWrap(passwdstore.Init(config.GetPasswdStoreFilePath()))
 }
@@ -30,6 +30,7 @@ func readSecureInput(c string) ([]byte, error) {
 	return s, errorwrap.ErrWrap(err)
 }
 
+// Parse parses the command line arguments and runs the respective functions accordingly.
 func Parse() error {
 	change := flag.Bool("change", false, "Changes the vault password")
 	list := flag.Bool("list", false, "Lists all the passwords in the vault")
@@ -62,13 +63,18 @@ func Parse() error {
 		}
 
 		newPwd, err := readSecureInput("Enter new vault password:")
+		if err != nil {
+			return errorwrap.ErrWrap(err)
+		}
+
 		newPwdCheck, err := readSecureInput("Enter new vault password once again:")
+		if err != nil {
+			return errorwrap.ErrWrap(err)
+		}
+
 		if string(newPwd) != string(newPwdCheck) {
 			fmt.Println("-----------------")
 			fmt.Println("Passwords don't match")
-		}
-		if err != nil {
-			return errorwrap.ErrWrap(err)
 		}
 
 		err = passwdstore.ChangePasswd(newPwd, oldPwd)
@@ -147,7 +153,7 @@ func Parse() error {
 		}
 
 		fmt.Println("-----------------")
-		fmt.Println("Generated password:", pwd)
+		fmt.Println("Generated password:", string(pwd))
 	} else {
 		fmt.Println("No arguments given. Run -help to get a list of arguments.")
 	}

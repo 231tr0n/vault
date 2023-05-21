@@ -5,6 +5,7 @@ import (
 	"runtime"
 )
 
+// ErrWrap takes an error, wraps it with the stack trace and returns it.
 func ErrWrap(err error) error {
 	if err != nil {
 		counter, _, _, ok := runtime.Caller(1)

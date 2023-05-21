@@ -4,6 +4,7 @@ version: '3'
 
 vars:
   GREETING: Hi!
+  EXECUTABLE_NAME: vault
 
 tasks:
   fmt:
@@ -11,12 +12,20 @@ tasks:
       - go fmt ./...
       - gofumpt -e -l -w -extra .
 
+  dockerbuild:
+    cmds:
+      - sudo docker build -t vault .
+
+  dockerrun:
+    cmds:
+      - sudo docker run -it vault {{.CLI_ARGS}}
+
   lint:
     cmds:
       - staticcheck -checks all ./...
       - golangci-lint run
 
-  coverage:
+  coverprofile:
     cmds:
       - go test -cover -coverprofile=coverage/cover.out ./...
 
@@ -35,7 +44,11 @@ tasks:
   build:
     cmds:
       - go generate
-      - go build -o bin/vault cmd/vault/*
+      - GOOS=linux GOARCH=amd64 go build -o bin/{{.EXECUTABLE_NAME}} cmd/vault/*
+
+  buildrun:
+    cmds:
+      - ./bin/{{.EXECUTABLE_NAME}} {{.CLI_ARGS}}
 
   run:
     cmds:

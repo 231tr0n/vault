@@ -9,17 +9,16 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
-	"github.com/231tr0n/vault/pkg/errorwrap"
 	"io"
+
+	"github.com/231tr0n/vault/pkg/errorwrap"
 )
 
 const (
 	aes256KeySize = 32
 )
 
-var (
-	ErrWrongPasswd = errors.New("wrong password")
-)
+var ErrWrongPasswd = errors.New("wrong password")
 
 // Encrypt encrypts "s" with password "p" using aes and gcm.
 func Encrypt(s, p []byte) ([]byte, error) {
