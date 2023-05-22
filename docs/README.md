@@ -1,2 +1,3 @@
 # Docs
-You can try running the `go run golang.org/x/pkgsite/cmd/pkgsite@latest` to view the documentation in a web browser or run `go doc -all` in each package to read the docs of that package.
+You can view the documentation at `https://pkg.go.dev/github.com/231tr0n/vault`
+You can try running the `go run golang.org/x/pkgsite/cmd/pkgsite@latest` to view the documentation in a web browser locally.
