@@ -5,7 +5,6 @@ import (
 	_ "bufio"
 	"flag"
 	"fmt"
-
 	// Used by the commented code.
 	_ "os"
 	"syscall"
