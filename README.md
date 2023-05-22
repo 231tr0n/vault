@@ -1,3 +1,4 @@
+[![Go Reference](https://pkg.go.dev/badge/github.com/231tr0n/vault.svg)](https://pkg.go.dev/github.com/231tr0n/vault)
 # Vault
 This is the repository which holds the source code for vault which is a simple password manager with a single master password.
 
