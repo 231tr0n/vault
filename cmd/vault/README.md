@@ -1,5 +1,7 @@
-[![Go Reference](https://pkg.go.dev/badge/github.com/231tr0n/vault/cmd/vault.svg)](https://pkg.go.dev/github.com/231tr0n/vault/cmd/vault)
 # Vault
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/231tr0n/vault/cmd/vault.svg)](https://pkg.go.dev/github.com/231tr0n/vault/cmd/vault)
+
 Vault is a simple password manager with a single master password. It uses AES encryption with GCM(Galois/Counter Mode) to encrypt the passwords.
 
 ## Installation
