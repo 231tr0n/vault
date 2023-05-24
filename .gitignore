@@ -22,4 +22,5 @@ go.work
 
 # bin folder
 bin
+# coverage folder
 coverage

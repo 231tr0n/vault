@@ -5,8 +5,8 @@ import (
 	"runtime"
 )
 
-// ErrWrap takes an error, wraps it with the stack trace and returns it.
-func ErrWrap(err error) error {
+// Wrap takes an error, wraps it with the stack trace and returns it.
+func Wrap(err error) error {
 	if err == nil {
 		return nil
 	}
@@ -15,8 +15,8 @@ func ErrWrap(err error) error {
 	if ok {
 		temp := runtime.FuncForPC(counter)
 
-		return fmt.Errorf("%s\n\t%w", temp.Name(), err)
+		return fmt.Errorf("error: %s\n%w", temp.Name(), err)
 	}
 
-	return fmt.Errorf("%s\n\t%w", "Unknown", err)
+	return fmt.Errorf("error: %s\n%w", "Unknown", err)
 }

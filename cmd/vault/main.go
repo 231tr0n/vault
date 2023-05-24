@@ -16,7 +16,7 @@ func main() {
 		fmt.Println(err)
 		//nolint
 		fmt.Println("-----------------")
-		os.Exit(1)
+		os.Exit(0)
 	}
 
 	err = cli.Parse()
@@ -27,6 +27,6 @@ func main() {
 		fmt.Println(err)
 		//nolint
 		fmt.Println("-----------------")
-		os.Exit(1)
+		os.Exit(0)
 	}
 }

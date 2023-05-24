@@ -1,14 +1,23 @@
 FROM archlinux:latest
 
-RUN pacman -Syu --noconfirm
-RUN pacman -Syu go --noconfirm
+RUN pacman -Sy go --needed --noconfirm
 
 COPY . /root/vault
 
 WORKDIR /root/vault
 
-RUN go run github.com/go-task/task/v3/cmd/task@latest build
+RUN go build -o /usr/local/bin/vault cmd/vault/*.go
 
-ENTRYPOINT ["./bin/vault"]
+RUN go clean -r -modcache -cache -i -x -testcache -fuzzcache
+
+WORKDIR /root
+
+RUN rm -rf /root/vault
+RUN rm -rf /root/go
+
+RUN pacman -Rnsu go --noconfirm
+RUN pacman -Scc
+
+ENTRYPOINT ["vault"]
 
 CMD ["-help"]

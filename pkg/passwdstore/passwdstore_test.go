@@ -219,7 +219,7 @@ func TestClear(t *testing.T) {
 	}
 }
 
-func TestList(t *testing.T) {
+func TestListEntries(t *testing.T) {
 	tempDir := t.TempDir()
 
 	passwdStoreFilePath := filepath.Join(tempDir, ".vault", ".passwdstore")
@@ -247,7 +247,56 @@ func TestList(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		list, err := passwdstore.List(passwd)
+		list, err := passwdstore.ListEntries(passwd)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		check := false
+
+		for _, val := range list {
+			if val[0] == test[0] && val[1] == test[1] {
+				check = true
+
+				break
+			}
+		}
+
+		if !check {
+			failTestCase(t, test, "\"\"", test[0])
+		}
+	}
+}
+
+func TestListKeys(t *testing.T) {
+	tempDir := t.TempDir()
+
+	passwdStoreFilePath := filepath.Join(tempDir, ".vault", ".passwdstore")
+
+	tests := [][3]string{
+		{"hi", "how are you", "secret"},
+	}
+
+	err := passwdstore.Init(passwdStoreFilePath)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, test := range tests {
+		t.Log(test)
+		passwd := []byte(test[2])
+
+		err = passwdstore.ChangePasswd(passwd, []byte(""))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		err := passwdstore.Put(test[0], test[1], passwd)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		list, err := passwdstore.ListKeys(passwd)
 		if err != nil {
 			t.Fatal(err)
 		}

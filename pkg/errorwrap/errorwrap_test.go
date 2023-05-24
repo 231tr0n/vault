@@ -13,9 +13,9 @@ func failTestCase(t *testing.T, i, o, w any) {
 	t.Error("Input:", i, "|", "Output:", o, "|", "Want:", w)
 }
 
-func TestErrWrap(t *testing.T) {
-	s := "github.com/231tr0n/vault/pkg/errorwrap_test.TestErrWrap\n\ttest"
-	out := fmt.Sprint(errorwrap.ErrWrap(errors.New("test")))
+func TestWrap(t *testing.T) {
+	s := "error: github.com/231tr0n/vault/pkg/errorwrap_test.TestWrap\ntest"
+	out := fmt.Sprint(errorwrap.Wrap(errors.New("test")))
 	t.Log(out)
 	if s != out {
 		failTestCase(t, "test", out, s)

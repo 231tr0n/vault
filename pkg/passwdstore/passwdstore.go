@@ -20,18 +20,35 @@ type passwdStore struct {
 	Store  map[string]string `json:"store"`
 }
 
+func newpasswdStore() passwdStore {
+	return passwdStore{
+		Passwd: []byte(""),
+		Store:  make(map[string]string),
+	}
+}
+
 var (
-	passwdStoreFilePath         = ""
-	ErrFilePathNotAbsolute      = errors.New("given filepath not absolute")
-	ErrPasswdFileManuallyEdited = errors.New("password file manually edited")
-	ErrPasswdFileIntegrityFail  = errors.New("password file integrity fail")
-	ErrVaultPasswdNotSet        = errors.New("vault password not set using ChangePasswd")
+	passwdStoreFilePath = ""
+	// ErrFilePathNotAbsolute is the error thrown when
+	// the passwdstore.Init function does not get an absolute path as an argument.
+	ErrFilePathNotAbsolute = errors.New("passwdstore: given filepath not absolute")
+	// ErrPasswdFileManuallyEdited is the error thrown when
+	// the passwdstore file at $HOME/.vault/.passwdstore is not parsable as it is manually edited.
+	ErrPasswdFileManuallyEdited = errors.New("passwdstore: password file manually edited")
+	// ErrPasswdFileIntegrityFail is the error thrown when
+	// the passwdstore file at $HOME/.vault/.passwdstore fails
+	// the integrity check which means that the contents are edited.
+	ErrPasswdFileIntegrityFail = errors.New("passwdstore: password file integrity fail")
+	// ErrVaultPasswdNotSet is the error thrown when the
+	// vault password is empty or not set. Use the passwdstore.ChangePasswd
+	// function to set the password initially as it is empty.
+	ErrVaultPasswdNotSet = errors.New("passwdstore: vault password not set")
 )
 
 // Init sets the given filepath for password store file.
 func Init(f string) error {
 	if !filepath.IsAbs(f) {
-		return errorwrap.ErrWrap(ErrFilePathNotAbsolute)
+		return errorwrap.Wrap(ErrFilePathNotAbsolute)
 	}
 
 	if stat, err := os.Stat(f); err == nil {
@@ -44,12 +61,12 @@ func Init(f string) error {
 
 	err := os.MkdirAll(filepath.Dir(f), os.ModePerm)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	_, err = os.Create(f)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	passwdStoreFilePath = f
@@ -61,68 +78,41 @@ func Init(f string) error {
 func decryptFileData(p []byte) (passwdStore, error) {
 	_, err := os.Stat(passwdStoreFilePath)
 	if err != nil {
-		return passwdStore{
-			Passwd: []byte(""),
-			Store:  make(map[string]string),
-		}, errorwrap.ErrWrap(err)
+		return newpasswdStore(), errorwrap.Wrap(err)
 	}
 
 	data, err := os.ReadFile(passwdStoreFilePath)
 	if err != nil {
-		return passwdStore{
-			Passwd: []byte(""),
-			Store:  make(map[string]string),
-		}, errorwrap.ErrWrap(err)
+		return newpasswdStore(), errorwrap.Wrap(err)
 	}
 
 	if len(data) == 0 {
-		return passwdStore{
-			Passwd: []byte(""),
-			Store:  make(map[string]string),
-		}, nil
+		return newpasswdStore(), nil
 	}
 
 	pData := bytes.Split(data, []byte{'.'})
 	if len(pData) != fileComponents {
-		return passwdStore{
-			Passwd: []byte(""),
-			Store:  make(map[string]string),
-		}, errorwrap.ErrWrap(ErrPasswdFileManuallyEdited)
+		return newpasswdStore(), errorwrap.Wrap(ErrPasswdFileManuallyEdited)
 	}
 
 	h, err := crypto.Hash(pData[0], nil)
 	if err != nil {
-		return passwdStore{
-			Passwd: []byte(""),
-			Store:  make(map[string]string),
-		}, errorwrap.ErrWrap(err)
+		return newpasswdStore(), errorwrap.Wrap(err)
 	}
 
 	if !crypto.Verify(h, pData[1]) {
-		return passwdStore{
-			Passwd: []byte(""),
-			Store:  make(map[string]string),
-		}, errorwrap.ErrWrap(ErrPasswdFileIntegrityFail)
+		return newpasswdStore(), errorwrap.Wrap(ErrPasswdFileIntegrityFail)
 	}
 
 	s, err := crypto.Decrypt(pData[0], p)
 	if err != nil {
-		return passwdStore{
-			Passwd: []byte(""),
-			Store:  make(map[string]string),
-		}, errorwrap.ErrWrap(err)
+		return newpasswdStore(), errorwrap.Wrap(err)
 	}
 
-	store := passwdStore{
-		Passwd: []byte(""),
-		Store:  make(map[string]string),
-	}
+	store := newpasswdStore()
 	err = json.Unmarshal(s, &store)
 	if err != nil {
-		return passwdStore{
-			Passwd: []byte(""),
-			Store:  make(map[string]string),
-		}, errorwrap.ErrWrap(err)
+		return newpasswdStore(), errorwrap.Wrap(err)
 	}
 
 	return store, nil
@@ -137,22 +127,22 @@ func encryptFileData(store passwdStore, p []byte) error {
 	store.Passwd = p
 	s, err := json.Marshal(store)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	enc, err := crypto.Encrypt(s, p)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	h, err := crypto.Hash(enc, nil)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	err = os.WriteFile(passwdStoreFilePath, bytes.Join([][]byte{enc, h}, []byte{'.'}), os.ModePerm)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	return nil
@@ -162,7 +152,7 @@ func encryptFileData(store passwdStore, p []byte) error {
 func Get(k string, p []byte) (string, error) {
 	store, err := decryptFileData(p)
 	if err != nil {
-		return "", errorwrap.ErrWrap(err)
+		return "", errorwrap.Wrap(err)
 	}
 
 	value := store.Store[k]
@@ -174,24 +164,24 @@ func Get(k string, p []byte) (string, error) {
 func Put(k, v string, p []byte) error {
 	store, err := decryptFileData(p)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	store.Store[k] = v
 
 	err = encryptFileData(store, p)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	return nil
 }
 
-// List lists all the key value pairs in the store.
-func List(p []byte) ([]string, error) {
+// ListKeys lists all the keys in the store.
+func ListKeys(p []byte) ([]string, error) {
 	store, err := decryptFileData(p)
 	if err != nil {
-		return nil, errorwrap.ErrWrap(err)
+		return nil, errorwrap.Wrap(err)
 	}
 
 	temp := make([]string, 0)
@@ -202,18 +192,33 @@ func List(p []byte) ([]string, error) {
 	return temp, nil
 }
 
+// ListEntries lists all the key value pairs in the store.
+func ListEntries(p []byte) ([][2]string, error) {
+	store, err := decryptFileData(p)
+	if err != nil {
+		return nil, errorwrap.Wrap(err)
+	}
+
+	temp := make([][2]string, 0)
+	for i, j := range store.Store {
+		temp = append(temp, [2]string{i, j})
+	}
+
+	return temp, nil
+}
+
 // Delete deletes the key value pair in the store.
 func Delete(k string, p []byte) error {
 	store, err := decryptFileData(p)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	delete(store.Store, k)
 
 	err = encryptFileData(store, p)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	return nil
@@ -223,17 +228,14 @@ func Delete(k string, p []byte) error {
 func Clear(p []byte) error {
 	_, err := decryptFileData(p)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
-	empty := passwdStore{
-		Passwd: []byte(""),
-		Store:  make(map[string]string),
-	}
+	empty := newpasswdStore()
 	empty.Passwd = p
 	err = encryptFileData(empty, p)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	return nil
@@ -243,14 +245,14 @@ func Clear(p []byte) error {
 func ChangePasswd(np, op []byte) error {
 	store, err := decryptFileData(op)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	store.Passwd = np
 
 	err = encryptFileData(store, np)
 	if err != nil {
-		return errorwrap.ErrWrap(err)
+		return errorwrap.Wrap(err)
 	}
 
 	return nil
