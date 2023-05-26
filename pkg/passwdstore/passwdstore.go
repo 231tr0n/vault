@@ -121,7 +121,7 @@ func decryptFileData(p []byte) (passwdStore, error) {
 // encryptFileData marshals the struct to json, encrypts it and stores the content in the file.
 func encryptFileData(store passwdStore, p []byte) error {
 	if string(store.Passwd) == "" {
-		return ErrVaultPasswdNotSet
+		return errorwrap.Wrap(ErrVaultPasswdNotSet)
 	}
 
 	store.Passwd = p
