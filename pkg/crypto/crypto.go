@@ -11,7 +11,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/231tr0n/vault/pkg/errorwrap"
+	"github.com/231tr0n/vault/internal/errorwrap"
 )
 
 const (

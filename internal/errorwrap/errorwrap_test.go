@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/231tr0n/vault/pkg/errorwrap"
+	"github.com/231tr0n/vault/internal/errorwrap"
 )
 
 func failTestCase(t *testing.T, i, o, w any) {
@@ -14,7 +14,7 @@ func failTestCase(t *testing.T, i, o, w any) {
 }
 
 func TestWrap(t *testing.T) {
-	s := "error: github.com/231tr0n/vault/pkg/errorwrap_test.TestWrap\ntest"
+	s := "error: github.com/231tr0n/vault/internal/errorwrap_test.TestWrap\ntest"
 	out := fmt.Sprint(errorwrap.Wrap(errors.New("test")))
 	t.Log(out)
 	if s != out {

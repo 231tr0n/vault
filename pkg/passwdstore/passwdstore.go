@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/231tr0n/vault/internal/errorwrap"
 	"github.com/231tr0n/vault/pkg/crypto"
-	"github.com/231tr0n/vault/pkg/errorwrap"
 )
 
 const (

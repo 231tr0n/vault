@@ -1,18 +1,13 @@
 package cli
 
 import (
-	// Used by the commented code.
-	_ "bufio"
 	"flag"
 	"fmt"
-
-	// Used by the commented code.
-	_ "os"
 	"syscall"
 
 	"github.com/231tr0n/vault/config"
+	"github.com/231tr0n/vault/internal/errorwrap"
 	"github.com/231tr0n/vault/pkg/crypto"
-	"github.com/231tr0n/vault/pkg/errorwrap"
 	"github.com/231tr0n/vault/pkg/passwdstore"
 	"golang.org/x/term"
 )
@@ -25,13 +20,6 @@ func Init() error {
 func readSecureInput(c string) ([]byte, error) {
 	//nolint
 	fmt.Print(c)
-
-	// fmt.Print("\033[?25l\033[8m")
-
-	// stdinReader := bufio.NewReader(os.Stdin)
-	// s, err := stdinReader.ReadBytes('\n')
-
-	// fmt.Print("\033[28m\033[?25h")
 
 	//nolint
 	s, err := term.ReadPassword(int(syscall.Stdin))
