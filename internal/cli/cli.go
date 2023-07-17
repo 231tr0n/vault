@@ -6,15 +6,18 @@ import (
 	"syscall"
 
 	"github.com/231tr0n/vault/config"
-	"github.com/231tr0n/vault/internal/errorwrap"
 	"github.com/231tr0n/vault/pkg/crypto"
 	"github.com/231tr0n/vault/pkg/passwdstore"
 	"golang.org/x/term"
 )
 
+func wrap(err error) error {
+	return fmt.Errorf("cli: %w", err)
+}
+
 // Init initlialises the passwdstore.
 func Init() error {
-	return errorwrap.Wrap(passwdstore.Init(config.GetPasswdStoreFilePath()))
+	return wrap(passwdstore.Init(config.GetPasswdStoreFilePath()))
 }
 
 func readSecureInput(c string) ([]byte, error) {
@@ -27,7 +30,7 @@ func readSecureInput(c string) ([]byte, error) {
 	//nolint
 	fmt.Println()
 
-	return s, errorwrap.Wrap(err)
+	return s, wrap(err)
 }
 
 // Parse parses the command line arguments and runs the respective functions accordingly.
@@ -56,11 +59,11 @@ switch1:
 	case *clear:
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 		err = passwdstore.Clear(pwd)
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		//nolint
@@ -71,17 +74,17 @@ switch1:
 	case *change:
 		oldPwd, err := readSecureInput("Enter old vault password: ")
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		newPwd, err := readSecureInput("Enter new vault password: ")
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		newPwdCheck, err := readSecureInput("Re-Enter new vault password: ")
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		if string(newPwd) != string(newPwdCheck) {
@@ -95,7 +98,7 @@ switch1:
 
 		err = passwdstore.ChangePasswd(newPwd, oldPwd)
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		//nolint
@@ -106,12 +109,12 @@ switch1:
 	case *listAll:
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		list, err := passwdstore.ListEntries(pwd)
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		//nolint
@@ -129,12 +132,12 @@ switch1:
 	case *list:
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		list, err := passwdstore.ListKeys(pwd)
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		//nolint
@@ -152,12 +155,12 @@ switch1:
 	case *get != "":
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		value, err := passwdstore.Get(*get, pwd)
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		//nolint
@@ -168,7 +171,7 @@ switch1:
 	case *put != "":
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		var value []byte
@@ -176,7 +179,7 @@ switch1:
 		if *generate > 0 {
 			value, err = crypto.Generate(*generate)
 			if err != nil {
-				return errorwrap.Wrap(err)
+				return wrap(err)
 			}
 			//nolint
 			fmt.Println("-----------------")
@@ -185,13 +188,13 @@ switch1:
 		} else {
 			value, err = readSecureInput("Enter password for '" + *put + "': ")
 			if err != nil {
-				return errorwrap.Wrap(err)
+				return wrap(err)
 			}
 		}
 
 		err = passwdstore.Put(*put, string(value), pwd)
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		//nolint
@@ -202,12 +205,12 @@ switch1:
 	case *del != "":
 		pwd, err := readSecureInput("Enter vault password: ")
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		err = passwdstore.Delete(*del, pwd)
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		//nolint
@@ -218,7 +221,7 @@ switch1:
 	case *generate > 0:
 		pwd, err := crypto.Generate(*generate)
 		if err != nil {
-			return errorwrap.Wrap(err)
+			return wrap(err)
 		}
 
 		//nolint
