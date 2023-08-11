@@ -8,8 +8,7 @@ import (
 )
 
 func main() {
-	err := cli.Init()
-	if err != nil {
+	if err := cli.Init(); err != nil {
 		//nolint
 		fmt.Println("-----------------")
 		//nolint
@@ -19,8 +18,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	err = cli.Parse()
-	if err != nil {
+	if err := cli.Parse(); err != nil {
 		//nolint
 		fmt.Println("-----------------")
 		//nolint

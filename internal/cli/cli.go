@@ -12,7 +12,11 @@ import (
 )
 
 func wrap(err error) error {
-	return fmt.Errorf("cli: %w", err)
+	if err != nil {
+		return fmt.Errorf("cli: %w", err)
+	}
+
+	return nil
 }
 
 // Init initlialises the passwdstore.

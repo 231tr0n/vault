@@ -76,6 +76,10 @@ tasks:
     cmds:
       - go mod tidy
 
+  updatedeps:
+    cmds:
+      - go get -u ./...
+
   default:
     silent: true
     cmds:

@@ -21,7 +21,11 @@ type passwdStore struct {
 }
 
 func wrap(err error) error {
-	return fmt.Errorf("passwdstore: %w", err)
+	if err != nil {
+		return fmt.Errorf("passwdstore: %w", err)
+	}
+
+	return nil
 }
 
 func newpasswdStore() passwdStore {

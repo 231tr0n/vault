@@ -21,7 +21,11 @@ const (
 var ErrWrongPasswd = errors.New("crypto: wrong password")
 
 func wrap(err error) error {
-	return fmt.Errorf("crypto: %w", err)
+	if err != nil {
+		return fmt.Errorf("crypto: %w", err)
+	}
+
+	return nil
 }
 
 // Encrypt encrypts "s" with password "p" using aes and gcm.

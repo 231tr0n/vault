@@ -11,6 +11,7 @@ linters:
     - goerr113
     - gocognit
     - dupl
+    - depguard
 
 issues:
   fix: true
